@@ -1,0 +1,82 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <list>
+          <option value="amqp" />
+          <option value="asgiref" />
+          <option value="billiard" />
+          <option value="boto3" />
+          <option value="botocore" />
+          <option value="celery" />
+          <option value="certifi" />
+          <option value="cffi" />
+          <option value="charset-normalizer" />
+          <option value="click" />
+          <option value="click-didyoumean" />
+          <option value="click-plugins" />
+          <option value="click-repl" />
+          <option value="cron-descriptor" />
+          <option value="cryptography" />
+          <option value="defusedxml" />
+          <option value="Django" />
+          <option value="django-admin-interface" />
+          <option value="django-celery-beat" />
+          <option value="django-colorfield" />
+          <option value="django-cors-headers" />
+          <option value="django-storages" />
+          <option value="django-svg-image-form-field" />
+          <option value="django-timezone-field" />
+          <option value="djangorestframework" />
+          <option value="djangorestframework-simplejwt" />
+          <option value="drf-yasg" />
+          <option value="flower" />
+          <option value="humanize" />
+          <option value="idna" />
+          <option value="inflection" />
+          <option value="jmespath" />
+          <option value="kombu" />
+          <option value="oauthlib" />
+          <option value="packaging" />
+          <option value="pillow" />
+          <option value="prometheus_client" />
+          <option value="prompt_toolkit" />
+          <option value="psycopg2" />
+          <option value="pycparser" />
+          <option value="PyJWT" />
+          <option value="python-crontab" />
+          <option value="python-dateutil" />
+          <option value="python-dotenv" />
+          <option value="python-slugify" />
+          <option value="python3-openid" />
+          <option value="pytz" />
+          <option value="PyYAML" />
+          <option value="redis" />
+          <option value="requests" />
+          <option value="requests-oauthlib" />
+          <option value="s3transfer" />
+          <option value="six" />
+          <option value="social-auth-app-django" />
+          <option value="social-auth-core" />
+          <option value="sqlparse" />
+          <option value="text-unidecode" />
+          <option value="tornado" />
+          <option value="tzdata" />
+          <option value="uritemplate" />
+          <option value="urllib3" />
+          <option value="vine" />
+          <option value="wcwidth" />
+        </list>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyStubPackagesAdvertiser" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <list>
+          <option value="djangorestframework" />
+          <option value="pandas" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>
