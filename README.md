@@ -69,7 +69,7 @@ See [NVIDIA NIM provider setup](#nvidia-nim-provider).
 From a local checkout:
 
 ```bash
-uv tool install --force .
+uv tool install --force git+https://github.com/itsrajverma/claude-chakra.git
 ```
 
 ### 5. Start The Proxy
