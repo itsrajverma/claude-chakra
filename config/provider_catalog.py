@@ -29,6 +29,10 @@ ZAI_DEFAULT_BASE = "https://api.z.ai/api/coding/paas/v4"
 # Free-tier OpenAI-compatible providers (generous no-credit-card quotas).
 GROQ_DEFAULT_BASE = "https://api.groq.com/openai/v1"
 CEREBRAS_DEFAULT_BASE = "https://api.cerebras.ai/v1"
+# Gemini's OpenAI-compatible surface (model ids come back ``models/``-prefixed).
+GEMINI_DEFAULT_BASE = "https://generativelanguage.googleapis.com/v1beta/openai"
+MISTRAL_DEFAULT_BASE = "https://api.mistral.ai/v1"
+SAMBANOVA_DEFAULT_BASE = "https://api.sambanova.ai/v1"
 
 
 @dataclass(frozen=True, slots=True)
@@ -177,6 +181,36 @@ PROVIDER_CATALOG: dict[str, ProviderDescriptor] = {
         credential_attr="cerebras_api_key",
         default_base_url=CEREBRAS_DEFAULT_BASE,
         proxy_attr="cerebras_proxy",
+        capabilities=("chat", "streaming", "tools", "rate_limit"),
+    ),
+    "gemini": ProviderDescriptor(
+        provider_id="gemini",
+        transport_type="openai_chat",
+        credential_env="GEMINI_API_KEY",
+        credential_url="https://aistudio.google.com/apikey",
+        credential_attr="gemini_api_key",
+        default_base_url=GEMINI_DEFAULT_BASE,
+        proxy_attr="gemini_proxy",
+        capabilities=("chat", "streaming", "tools", "rate_limit"),
+    ),
+    "mistral": ProviderDescriptor(
+        provider_id="mistral",
+        transport_type="openai_chat",
+        credential_env="MISTRAL_API_KEY",
+        credential_url="https://console.mistral.ai/api-keys",
+        credential_attr="mistral_api_key",
+        default_base_url=MISTRAL_DEFAULT_BASE,
+        proxy_attr="mistral_proxy",
+        capabilities=("chat", "streaming", "tools", "rate_limit"),
+    ),
+    "sambanova": ProviderDescriptor(
+        provider_id="sambanova",
+        transport_type="openai_chat",
+        credential_env="SAMBANOVA_API_KEY",
+        credential_url="https://cloud.sambanova.ai/apis",
+        credential_attr="sambanova_api_key",
+        default_base_url=SAMBANOVA_DEFAULT_BASE,
+        proxy_attr="sambanova_proxy",
         capabilities=("chat", "streaming", "tools", "rate_limit"),
     ),
 }

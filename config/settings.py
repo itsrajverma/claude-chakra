@@ -177,6 +177,18 @@ class Settings(BaseSettings):
     cerebras_api_key: str = Field(default="", validation_alias="CEREBRAS_API_KEY")
     cerebras_api_keys: str = Field(default="", validation_alias="CEREBRAS_API_KEYS")
 
+    # ==================== Google Gemini Config (free tier) ====================
+    gemini_api_key: str = Field(default="", validation_alias="GEMINI_API_KEY")
+    gemini_api_keys: str = Field(default="", validation_alias="GEMINI_API_KEYS")
+
+    # ==================== Mistral Config (free tier) ====================
+    mistral_api_key: str = Field(default="", validation_alias="MISTRAL_API_KEY")
+    mistral_api_keys: str = Field(default="", validation_alias="MISTRAL_API_KEYS")
+
+    # ==================== SambaNova Config (free tier) ====================
+    sambanova_api_key: str = Field(default="", validation_alias="SAMBANOVA_API_KEY")
+    sambanova_api_keys: str = Field(default="", validation_alias="SAMBANOVA_API_KEYS")
+
     # ==================== Messaging Platform Selection ====================
     # Valid: "telegram" | "discord" | "none"
     messaging_platform: str = Field(
@@ -241,6 +253,9 @@ class Settings(BaseSettings):
     fireworks_proxy: str = Field(default="", validation_alias="FIREWORKS_PROXY")
     groq_proxy: str = Field(default="", validation_alias="GROQ_PROXY")
     cerebras_proxy: str = Field(default="", validation_alias="CEREBRAS_PROXY")
+    gemini_proxy: str = Field(default="", validation_alias="GEMINI_PROXY")
+    mistral_proxy: str = Field(default="", validation_alias="MISTRAL_PROXY")
+    sambanova_proxy: str = Field(default="", validation_alias="SAMBANOVA_PROXY")
 
     # ==================== Provider Rate Limiting ====================
     provider_rate_limit: int = Field(default=40, validation_alias="PROVIDER_RATE_LIMIT")

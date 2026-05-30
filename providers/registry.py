@@ -110,6 +110,24 @@ def _create_cerebras(config: ProviderConfig, _settings: Settings) -> BaseProvide
     return CerebrasProvider(config)
 
 
+def _create_gemini(config: ProviderConfig, _settings: Settings) -> BaseProvider:
+    from providers.gemini import GeminiProvider
+
+    return GeminiProvider(config)
+
+
+def _create_mistral(config: ProviderConfig, _settings: Settings) -> BaseProvider:
+    from providers.mistral import MistralProvider
+
+    return MistralProvider(config)
+
+
+def _create_sambanova(config: ProviderConfig, _settings: Settings) -> BaseProvider:
+    from providers.sambanova import SambaNovaProvider
+
+    return SambaNovaProvider(config)
+
+
 PROVIDER_FACTORIES: dict[str, ProviderFactory] = {
     "nvidia_nim": _create_nvidia_nim,
     "open_router": _create_open_router,
@@ -124,6 +142,9 @@ PROVIDER_FACTORIES: dict[str, ProviderFactory] = {
     "fireworks": _create_fireworks,
     "groq": _create_groq,
     "cerebras": _create_cerebras,
+    "gemini": _create_gemini,
+    "mistral": _create_mistral,
+    "sambanova": _create_sambanova,
 }
 
 if set(PROVIDER_DESCRIPTORS) != set(SUPPORTED_PROVIDER_IDS) or set(

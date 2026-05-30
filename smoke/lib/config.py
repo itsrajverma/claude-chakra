@@ -53,6 +53,9 @@ PROVIDER_SMOKE_DEFAULT_MODELS: dict[str, str] = {
     "zai": "zai/glm-5.1",
     "groq": "groq/llama-3.3-70b-versatile",
     "cerebras": "cerebras/qwen-3-coder-480b",
+    "gemini": "gemini/gemini-2.5-flash",
+    "mistral": "mistral/mistral-small-latest",
+    "sambanova": "sambanova/Meta-Llama-3.3-70B-Instruct",
 }
 
 NVIDIA_NIM_CLI_DEFAULT_MODELS: tuple[str, ...] = (
