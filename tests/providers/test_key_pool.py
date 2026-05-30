@@ -52,9 +52,7 @@ def test_rate_limited_key_skipped_until_cooldown_expires(monkeypatch):
 
 def test_all_cooling_returns_soonest_free(monkeypatch):
     clock = {"now": 1000.0}
-    monkeypatch.setattr(
-        "providers.key_pool.time.monotonic", lambda: clock["now"]
-    )
+    monkeypatch.setattr("providers.key_pool.time.monotonic", lambda: clock["now"])
 
     pool = KeyPool(["a", "b"], scope="nim", default_cooldown_seconds=60.0)
     pool.report_rate_limit("a", cooldown_seconds=60.0)

@@ -57,7 +57,9 @@ class TestSettings:
 
         settings = Settings()
 
-        assert settings.claude_workspace == str(tmp_path / ".chakra" / "agent_workspace")
+        assert settings.claude_workspace == str(
+            tmp_path / ".chakra" / "agent_workspace"
+        )
 
     def test_server_log_path_uses_chakra_home(self, monkeypatch, tmp_path):
         """The server log location is fixed under ~/.chakra."""
@@ -101,7 +103,9 @@ class TestSettings:
 
         settings = Settings()
 
-        assert settings.claude_workspace == str(tmp_path / ".chakra" / "agent_workspace")
+        assert settings.claude_workspace == str(
+            tmp_path / ".chakra" / "agent_workspace"
+        )
 
     def test_explicit_claude_workspace_is_ignored(self, monkeypatch, tmp_path):
         """Custom CLAUDE_WORKSPACE values do not override the fixed workspace."""
@@ -115,7 +119,9 @@ class TestSettings:
 
         settings = Settings()
 
-        assert settings.claude_workspace == str(tmp_path / ".chakra" / "agent_workspace")
+        assert settings.claude_workspace == str(
+            tmp_path / ".chakra" / "agent_workspace"
+        )
 
     def test_explicit_claude_cli_bin_is_ignored(self, monkeypatch):
         """Custom CLAUDE_CLI_BIN values do not override the fixed binary."""
@@ -146,7 +152,9 @@ class TestSettings:
             )
         )
 
-        assert settings.claude_workspace == str(tmp_path / ".chakra" / "agent_workspace")
+        assert settings.claude_workspace == str(
+            tmp_path / ".chakra" / "agent_workspace"
+        )
         assert settings.claude_cli_bin == "claude"
 
     def test_get_settings_cached(self):

@@ -1161,7 +1161,9 @@ def provider_config_status(
             continue
 
         single_value = str(state.get(descriptor.credential_env, {}).get("value", ""))
-        pool_env = f"{descriptor.credential_env}S"  # e.g. NVIDIA_NIM_API_KEY -> ..._API_KEYS
+        pool_env = (
+            f"{descriptor.credential_env}S"  # e.g. NVIDIA_NIM_API_KEY -> ..._API_KEYS
+        )
         pool_value = str(state.get(pool_env, {}).get("value", ""))
         configured = bool(single_value.strip()) or bool(pool_value.strip())
         statuses.append(
