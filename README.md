@@ -80,8 +80,6 @@ uv tool install --force git+https://github.com/itsrajverma/claude-chakra.git
 chakra-server
 ```
 
-(Legacy `fcc-server` is still registered as an alias.)
-
 After startup, Uvicorn prints the proxy bind address and the app logs the admin URL:
 
 ```text
@@ -108,7 +106,7 @@ The default model is already set to `nvidia_nim/z-ai/glm4.7`. You can change it 
 chakra-claude
 ```
 
-`chakra-claude` reads the current configured port and auth token each time it starts, sets the Claude Code environment variables (including a 190k-token `CLAUDE_CODE_AUTO_COMPACT_WINDOW` for auto-compaction), and then launches the real `claude` command. (`fcc-claude` still works as an alias.)
+`chakra-claude` reads the current configured port and auth token each time it starts, sets the Claude Code environment variables (including a 190k-token `CLAUDE_CODE_AUTO_COMPACT_WINDOW` for auto-compaction), and then launches the real `claude` command.
 
 ### 8. Pool Multiple API Keys (Optional)
 
@@ -346,7 +344,7 @@ For terminal use, prefer the installed launcher:
 chakra-claude
 ```
 
-Keep `chakra-server` running while you work. The Admin UI manages proxy config, restarts the server when runtime settings change, and `chakra-claude` reads the current Admin UI-managed port and auth token every time it starts. It also sets `CLAUDE_CODE_AUTO_COMPACT_WINDOW` to `190000` for auto-compaction. (`fcc-server` / `fcc-claude` aliases continue to work.)
+Keep `chakra-server` running while you work. The Admin UI manages proxy config, restarts the server when runtime settings change, and `chakra-claude` reads the current Admin UI-managed port and auth token every time it starts. It also sets `CLAUDE_CODE_AUTO_COMPACT_WINDOW` to `190000` for auto-compaction.
 
 ### 2. VS Code Extension
 
@@ -411,7 +409,7 @@ The bot wrapper runs Claude Code sessions remotely, streams progress, supports r
 
 **Configure in the Admin UI**
 
-1. With `fcc-server` running, open the **Admin UI** URL from the terminal output.
+1. With `chakra-server` running, open the **Admin UI** URL from the terminal output.
 2. In the sidebar, choose **Messaging**.
 3. Set **Messaging Platform** to **discord** or **telegram**.
 4. For Discord, paste **Discord Bot Token** and **Allowed Discord Channels**. For Telegram, paste **Telegram Bot Token** and **Allowed Telegram User ID**.
@@ -445,7 +443,7 @@ uv tool install --force "claude-chakra[voice_local] @ git+https://github.com/its
 uv tool install --force "claude-chakra[voice,voice_local] @ git+https://github.com/itsrajverma/claude-chakra.git"
 ```
 
-For **cuda** local Whisper, add `--torch-backend cu130` to the `voice_local` install command. Restart `fcc-server` after reinstalling.
+For **cuda** local Whisper, add `--torch-backend cu130` to the `voice_local` install command. Restart `chakra-server` after reinstalling.
 
 In the **Admin UI**, open **Messaging** and scroll to **Voice**. Turn on **Voice Notes**, choose **Whisper Device** (`cpu`, `cuda`, or `nvidia_nim`), set **Whisper Model**, and enter **Hugging Face Token** when your setup needs it. For **nvidia_nim** transcription, install the `voice` extra and set **NVIDIA NIM API Key** on the **Providers** view. The screenshot above shows the **Voice** block in the same view.
 
@@ -511,7 +509,6 @@ Run them in that order before pushing. CI enforces the same checks.
 - `chakra-init`: optional advanced scaffold for `~/.chakra/.env`; prefer the **Admin UI** for normal configuration.
 - `chakra-claude`: launches Claude Code with the configured local proxy URL, auth token, model discovery flag, and a 190k `CLAUDE_CODE_AUTO_COMPACT_WINDOW` for auto-compaction.
 - `claude-chakra`: compatibility alias for `chakra-server`.
-- `fcc-server` / `fcc-init` / `fcc-claude` / `free-claude-code`: legacy aliases kept for users migrating from the old name.
 
 ### 5. Extending
 

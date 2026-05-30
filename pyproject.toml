@@ -29,11 +29,6 @@ chakra-server = "cli.entrypoints:serve"
 chakra-init = "cli.entrypoints:init"
 chakra-claude = "cli.entrypoints:launch_claude"
 claude-chakra = "cli.entrypoints:serve"
-# Legacy aliases (kept so existing fcc-* invocations continue to work)
-fcc-server = "cli.entrypoints:serve"
-fcc-init = "cli.entrypoints:init"
-fcc-claude = "cli.entrypoints:launch_claude"
-free-claude-code = "cli.entrypoints:serve"
 
 [project.optional-dependencies]
 voice = [

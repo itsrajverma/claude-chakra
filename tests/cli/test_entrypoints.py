@@ -1,4 +1,4 @@
-"""Tests for cli/entrypoints.py — fcc-init scaffolding logic."""
+"""Tests for cli/entrypoints.py — chakra-init scaffolding logic."""
 
 import tomllib
 from pathlib import Path
@@ -154,9 +154,13 @@ def test_cli_scripts_are_registered() -> None:
     )
 
     scripts = pyproject["project"]["scripts"]
-    assert scripts["fcc-server"] == "cli.entrypoints:serve"
-    assert scripts["free-claude-code"] == "cli.entrypoints:serve"
-    assert scripts["fcc-claude"] == "cli.entrypoints:launch_claude"
+    assert scripts["chakra-server"] == "cli.entrypoints:serve"
+    assert scripts["chakra-init"] == "cli.entrypoints:init"
+    assert scripts["chakra-claude"] == "cli.entrypoints:launch_claude"
+    assert scripts["claude-chakra"] == "cli.entrypoints:serve"
+    # Legacy fcc-* / free-claude-code aliases have been removed.
+    assert "fcc-server" not in scripts
+    assert "free-claude-code" not in scripts
 
 
 def test_schedule_open_admin_browser_opens_when_health_ready(
