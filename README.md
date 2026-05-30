@@ -14,7 +14,7 @@ A multi-key Anthropic-compatible proxy for Claude Code CLI, VS Code, and JetBrai
 
 Claude Chakra routes Anthropic Messages API traffic from Claude Code to NVIDIA NIM, Kimi, Wafer, OpenRouter, DeepSeek, LM Studio, llama.cpp, or Ollama. It keeps Claude Code's client-side protocol stable while letting you choose free, paid, or local models — and it can pool **multiple API keys per provider** and rotate to a live key whenever one hits a 429, so a long Claude Code session doesn't stall when one key runs out of quota.
 
-[Quick Start](#quick-start) · [Providers](#choose-a-provider) · [Clients](#connect-claude-code) · [Integrations](#optional-integrations) · [Development](#development)
+[Quick Start](#quick-start) · [Update](#update-claude-chakra) · [Providers](#choose-a-provider) · [Clients](#connect-claude-code) · [Integrations](#optional-integrations) · [Development](#development)
 
 </div>
 
@@ -125,6 +125,31 @@ When the pool has more than one key the proxy:
 - Falls back to the existing exponential-backoff path only when *every* key is cooling.
 
 If both the single key (`NVIDIA_NIM_API_KEY`) and the pool (`NVIDIA_NIM_API_KEYS`) are set, the pool wins. To remove the pool and go back to a single key, clear the textarea and Apply.
+
+## Update Claude Chakra
+
+Claude Chakra is installed as a `uv` tool straight from Git, so updating to the newest version is just a forced re-install — this re-fetches the latest commit and rebuilds the `chakra-*` console scripts:
+
+```bash
+uv tool install --force git+https://github.com/itsrajverma/claude-chakra.git
+```
+
+`uv tool upgrade claude-chakra` also works for a quick bump. If you installed a voice extra, update with the same extra so it is rebuilt too:
+
+```bash
+# NVIDIA NIM transcription
+uv tool install --force "claude-chakra[voice] @ git+https://github.com/itsrajverma/claude-chakra.git"
+# Local Whisper (CPU/CUDA)
+uv tool install --force "claude-chakra[voice_local] @ git+https://github.com/itsrajverma/claude-chakra.git"
+```
+
+After updating, restart the proxy so the new build is picked up:
+
+```bash
+chakra-server
+```
+
+Your configuration in `~/.chakra/.env` is preserved across updates — updating only replaces the code, never your keys or model settings. To check the installed version, run `uv tool list`.
 
 ## Choose A Provider
 
