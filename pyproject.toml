@@ -39,7 +39,7 @@ free-claude-code = "cli.entrypoints:serve"
 voice = [
     "grpcio>=1.80.0",
     "grpcio-tools>=1.80.0",
-    "nvidia-riva-client>=2.25.1",
+    "nvidia-riva-client>=2.26.0",
 ]
 voice_local = [
     "torch>=2.12.0",
@@ -69,7 +69,7 @@ dev = [
     "pytest-asyncio>=1.4.0",
     "pytest-cov>=7.1.0",
     "ty>=0.0.40",
-    "ruff>=0.15.14",
+    "ruff>=0.15.15",
     "pytest-xdist>=3.8.0",
 ]
 
