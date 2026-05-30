@@ -36,7 +36,15 @@ _RUNTIME_EXTRAS = {
 def _app_settings(**kwargs):
     """Minimal settings namespace for AppRuntime (matches typed :class:`Settings` fields used)."""
     data = {**_RUNTIME_EXTRAS, **kwargs}
-    return SimpleNamespace(**data)
+    ns = SimpleNamespace(**data)
+    if not hasattr(ns, "api_keys_for"):
+
+        def _api_keys_for(provider_id):
+            key = getattr(ns, f"{provider_id}_api_key", "")
+            return (key,) if isinstance(key, str) and key.strip() else ()
+
+        ns.api_keys_for = _api_keys_for
+    return ns
 
 
 def test_warn_if_process_auth_token_logs_warning():

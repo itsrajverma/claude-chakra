@@ -12,12 +12,15 @@ class OllamaProvider(AnthropicMessagesTransport):
     """Ollama provider using native Anthropic Messages API."""
 
     def __init__(self, config: ProviderConfig):
+        # Ollama needs no real key; default before super so the KeyPool (built in
+        # the base __init__) gets a non-empty value when instantiated directly.
+        if not (config.api_key or "").strip():
+            config = config.model_copy(update={"api_key": "ollama"})
         super().__init__(
             config,
             provider_name="OLLAMA",
             default_base_url=OLLAMA_DEFAULT_BASE,
         )
-        self._api_key = config.api_key or "ollama"
 
     async def _send_stream_request(
         self, body: dict, *, api_key: str | None = None

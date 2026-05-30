@@ -201,9 +201,10 @@ async def test_stream_response_reasoning_content(fireworks_provider):
 
 @pytest.mark.asyncio
 async def test_cleanup(fireworks_provider):
-    """cleanup closes the OpenAI client."""
-    fireworks_provider._client = AsyncMock()
+    """cleanup closes every per-key OpenAI client in the pool."""
+    mock_client = AsyncMock()
+    fireworks_provider._clients_by_key = {"test_fireworks_key": mock_client}
 
     await fireworks_provider.cleanup()
 
-    fireworks_provider._client.close.assert_called_once()
+    mock_client.close.assert_called_once()

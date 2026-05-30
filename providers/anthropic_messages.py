@@ -371,6 +371,14 @@ class AnthropicMessagesTransport(BaseProvider):
                         await _maybe_await_aclose(send_response)
             return send_response
 
+        if self._key_pool.size == 1:
+            # Single key: nothing to rotate. Use the reactive-backoff path directly so
+            # transient 429 *and* upstream 5xx both retry with exponential backoff.
+            api_key = self._key_pool.next_live_key()
+            return await self._global_rate_limiter.execute_with_retry(
+                _send_with_key, api_key
+            )
+
         attempts_remaining = max(self._key_pool.size, 1)
         last_error: Exception | None = None
         while attempts_remaining > 0:

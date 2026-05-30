@@ -52,6 +52,12 @@ def _make_mock_settings(**overrides):
     mock.http_write_timeout = 10.0
     mock.http_connect_timeout = 10.0
     mock.enable_model_thinking = True
+
+    def _api_keys_for(provider_id):
+        key = getattr(mock, f"{provider_id}_api_key", "")
+        return (key,) if isinstance(key, str) and key.strip() else ()
+
+    mock.api_keys_for = _api_keys_for
     for key, value in overrides.items():
         setattr(mock, key, value)
     return mock
@@ -97,11 +103,13 @@ async def test_cleanup_provider():
 
         provider = get_provider()
         assert isinstance(provider, NvidiaNimProvider)
-        provider._client = AsyncMock()
+        # OpenAI-compat cleanup closes every per-key client in _clients_by_key.
+        mock_client = AsyncMock()
+        provider._clients_by_key = {"test_key": mock_client}
 
         await cleanup_provider()
 
-        provider._client.close.assert_called_once()
+        mock_client.close.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -382,8 +390,9 @@ async def test_cleanup_provider_close_raises():
 
         provider = get_provider()
         assert isinstance(provider, NvidiaNimProvider)
-        provider._client = AsyncMock()
-        provider._client.close = AsyncMock(side_effect=RuntimeError("cleanup failed"))
+        mock_client = AsyncMock()
+        mock_client.close = AsyncMock(side_effect=RuntimeError("cleanup failed"))
+        provider._clients_by_key = {"test_key": mock_client}
 
         # Should propagate the error
         with pytest.raises(RuntimeError, match="cleanup failed"):
@@ -445,12 +454,13 @@ async def test_cleanup_provider_cleans_all():
         assert isinstance(nim, NvidiaNimProvider)
         assert isinstance(lmstudio, LMStudioProvider)
 
-        nim._client = AsyncMock()
+        nim_client = AsyncMock()
+        nim._clients_by_key = {"test_key": nim_client}
         lmstudio._client = AsyncMock()
 
         await cleanup_provider()
 
-        nim._client.close.assert_called_once()
+        nim_client.close.assert_called_once()
         lmstudio._client.aclose.assert_called_once()
 
 

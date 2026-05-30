@@ -157,6 +157,15 @@ class OpenAIChatTransport(BaseProvider):
         in the pool hits 429 we fall back to ``execute_with_retry``'s reactive
         backoff on the soonest-free key.
         """
+        if self._key_pool.size == 1:
+            # Single key: nothing to rotate. Use the reactive-backoff path directly so
+            # transient 429 *and* upstream 5xx both retry with exponential backoff.
+            api_key = self._key_pool.next_live_key()
+            client = self._client_for_key(api_key)
+            return await self._global_rate_limiter.execute_with_retry(
+                client.chat.completions.create, **create_body, stream=True
+            )
+
         attempts_remaining = max(self._key_pool.size, 1)
         last_error: Exception | None = None
         while attempts_remaining > 0:

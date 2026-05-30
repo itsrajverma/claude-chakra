@@ -26,7 +26,7 @@ class KeyPool:
         scope: str,
         default_cooldown_seconds: float = 60.0,
     ) -> None:
-        cleaned = tuple(key for key in keys if key)
+        cleaned = tuple(stripped for key in keys if (stripped := key.strip()))
         if not cleaned:
             raise ValueError(f"KeyPool {scope!r} requires at least one non-empty key")
         self._keys = cleaned
@@ -61,9 +61,7 @@ class KeyPool:
             self._cursor += 1
             if self._cooldown_until.get(key, 0.0) <= now:
                 return key
-        soonest = min(
-            self._keys, key=lambda k: self._cooldown_until.get(k, 0.0)
-        )
+        soonest = min(self._keys, key=lambda k: self._cooldown_until.get(k, 0.0))
         logger.warning(
             "KeyPool scope={} all {} keys cooling; reusing soonest-free key",
             self._scope,
@@ -91,12 +89,8 @@ class KeyPool:
     def all_cooling(self) -> bool:
         """Return whether every key is currently in cooldown."""
         now = time.monotonic()
-        return all(
-            self._cooldown_until.get(key, 0.0) > now for key in self._keys
-        )
+        return all(self._cooldown_until.get(key, 0.0) > now for key in self._keys)
 
     def remaining_live_keys(self) -> int:
         now = time.monotonic()
-        return sum(
-            1 for key in self._keys if self._cooldown_until.get(key, 0.0) <= now
-        )
+        return sum(1 for key in self._keys if self._cooldown_until.get(key, 0.0) <= now)

@@ -54,6 +54,12 @@ def _make_settings(**overrides):
     mock.http_connect_timeout = 10.0
     mock.enable_model_thinking = True
     mock.nim = NimSettings()
+
+    def _api_keys_for(provider_id):
+        key = getattr(mock, f"{provider_id}_api_key", "")
+        return (key,) if isinstance(key, str) and key.strip() else ()
+
+    mock.api_keys_for = _api_keys_for
     for key, value in overrides.items():
         setattr(mock, key, value)
     return mock
