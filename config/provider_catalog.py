@@ -26,6 +26,9 @@ LLAMACPP_DEFAULT_BASE = "http://localhost:8080/v1"
 OLLAMA_DEFAULT_BASE = "http://localhost:11434"
 OPENCODE_DEFAULT_BASE = "https://opencode.ai/zen/v1"
 ZAI_DEFAULT_BASE = "https://api.z.ai/api/coding/paas/v4"
+# Free-tier OpenAI-compatible providers (generous no-credit-card quotas).
+GROQ_DEFAULT_BASE = "https://api.groq.com/openai/v1"
+CEREBRAS_DEFAULT_BASE = "https://api.cerebras.ai/v1"
 
 
 @dataclass(frozen=True, slots=True)
@@ -155,6 +158,26 @@ PROVIDER_CATALOG: dict[str, ProviderDescriptor] = {
         default_base_url=FIREWORKS_DEFAULT_BASE,
         proxy_attr="fireworks_proxy",
         capabilities=("chat", "streaming", "tools", "thinking", "rate_limit"),
+    ),
+    "groq": ProviderDescriptor(
+        provider_id="groq",
+        transport_type="openai_chat",
+        credential_env="GROQ_API_KEY",
+        credential_url="https://console.groq.com/keys",
+        credential_attr="groq_api_key",
+        default_base_url=GROQ_DEFAULT_BASE,
+        proxy_attr="groq_proxy",
+        capabilities=("chat", "streaming", "tools", "rate_limit"),
+    ),
+    "cerebras": ProviderDescriptor(
+        provider_id="cerebras",
+        transport_type="openai_chat",
+        credential_env="CEREBRAS_API_KEY",
+        credential_url="https://cloud.cerebras.ai/",
+        credential_attr="cerebras_api_key",
+        default_base_url=CEREBRAS_DEFAULT_BASE,
+        proxy_attr="cerebras_proxy",
+        capabilities=("chat", "streaming", "tools", "rate_limit"),
     ),
 }
 

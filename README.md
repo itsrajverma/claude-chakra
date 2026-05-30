@@ -21,7 +21,9 @@ Claude Chakra routes Anthropic Messages API traffic from Claude Code to NVIDIA N
 ## What You Get
 
 - Drop-in proxy for Claude Code's Anthropic API calls.
-- Ten provider backends: NVIDIA NIM, Kimi, Wafer, OpenRouter, DeepSeek, LM Studio, llama.cpp, Ollama, OpenCode Zen, and Z.ai.
+- Thirteen provider backends — including the **Groq** and **Cerebras** free tiers: NVIDIA NIM, Kimi, Wafer, OpenRouter, DeepSeek, Fireworks, Groq, Cerebras, LM Studio, llama.cpp, Ollama, OpenCode Zen, and Z.ai. See the [Provider Matrix](#provider-matrix).
+- **[Cross-provider fallback](#cross-provider-fallback)**: stack several free tiers in `MODEL_FALLBACKS` and the proxy spills from an exhausted provider to the next one automatically, mid-request — the biggest lever for stretching free quota.
+- **Multi-key pooling**: paste several keys per provider (e.g. one per account) and the proxy round-robins them, cooling a key for 60s and rotating on a `429`.
 - Per-model routing: send Opus, Sonnet, Haiku, and fallback traffic to different providers.
 - Native Claude Code `/model` picker support through the proxy's `/v1/models` endpoint (Claude Code must opt in to Gateway model discovery; see [Model Picker](#model-picker)).
 - Streaming, tool use, reasoning/thinking block handling, and local request optimizations.
@@ -128,7 +130,29 @@ If both the single key (`NVIDIA_NIM_API_KEY`) and the pool (`NVIDIA_NIM_API_KEYS
 
 ## Choose A Provider
 
-Pick one provider, enter its key or local URL in the Admin UI, and set `MODEL` to a provider-prefixed model slug. `MODEL` is the fallback. `MODEL_OPUS`, `MODEL_SONNET`, and `MODEL_HAIKU` can override routing for Claude Code's model tiers.
+Pick one provider, enter its key or local URL in the Admin UI, and set `MODEL` to a provider-prefixed model slug. `MODEL` is the fallback. `MODEL_OPUS`, `MODEL_SONNET`, and `MODEL_HAIKU` can override routing for Claude Code's model tiers. To chain several providers so a request survives an exhausted quota, see [Cross-Provider Fallback](#cross-provider-fallback).
+
+<a id="provider-matrix"></a>
+
+### Provider Matrix
+
+| # | Provider | Free tier | Transport | Get a key | Example `MODEL` |
+| --- | --- | --- | --- | --- | --- |
+| 1 | [NVIDIA NIM](https://build.nvidia.com/) | ✅ free credits | OpenAI chat | [api-keys](https://build.nvidia.com/settings/api-keys) | `nvidia_nim/z-ai/glm4.7` |
+| 2 | [Groq](https://groq.com/) | ✅ no card, fastest | OpenAI chat | [console.groq.com/keys](https://console.groq.com/keys) | `groq/llama-3.3-70b-versatile` |
+| 3 | [Cerebras](https://cerebras.ai/) | ✅ no card, large daily | OpenAI chat | [cloud.cerebras.ai](https://cloud.cerebras.ai/) | `cerebras/qwen-3-coder-480b` |
+| 4 | [OpenRouter](https://openrouter.ai/) | ✅ many `:free` models | Anthropic msgs | [openrouter.ai/keys](https://openrouter.ai/keys) | `open_router/deepseek/deepseek-chat:free` |
+| 5 | [OpenCode Zen](https://opencode.ai/) | ✅ some free models | OpenAI chat | [opencode.ai/auth](https://opencode.ai/auth) | `opencode/big-pickle` |
+| 6 | [Kimi](https://platform.moonshot.ai/) | — paid | OpenAI chat | [console](https://platform.moonshot.ai/console/api-keys) | `kimi/kimi-k2.5` |
+| 7 | [DeepSeek](https://platform.deepseek.com/) | — paid | Anthropic msgs | [api_keys](https://platform.deepseek.com/api_keys) | `deepseek/deepseek-chat` |
+| 8 | [Wafer](https://wafer.ai/) | — paid pass | Anthropic msgs | [wafer.ai](https://wafer.ai) | `wafer/DeepSeek-V4-Pro` |
+| 9 | [Z.ai](https://z.ai/) | — coding plan | OpenAI chat | [apikey-list](https://z.ai/manage-apikey/apikey-list) | `zai/glm-5.1` |
+| 10 | [Fireworks](https://fireworks.ai/) | — trial credit | OpenAI chat | [api-keys](https://fireworks.ai/account/api-keys) | `fireworks/accounts/fireworks/models/glm-5p1` |
+| 11 | [LM Studio](https://lmstudio.ai/) | 🖥️ local | Anthropic msgs | — (local) | `lmstudio/<model>` |
+| 12 | [llama.cpp](https://github.com/ggml-org/llama.cpp) | 🖥️ local | Anthropic msgs | — (local) | `llamacpp/<model>` |
+| 13 | [Ollama](https://ollama.com/) | 🖥️ local | Anthropic msgs | — (local) | `ollama/llama3.1` |
+
+✅ = usable with a free key (no credit card for Groq/Cerebras) · 🖥️ = runs locally, no key · — = paid only. Every authenticated provider supports a multi-key **pool** (`<PROVIDER>_API_KEYS`) and can be chained via [`MODEL_FALLBACKS`](#cross-provider-fallback).
 
 <a id="nvidia-nim-provider"></a>
 
@@ -245,11 +269,69 @@ Popular examples:
 
 Browse models at [Z.ai](https://z.ai).
 
-### 11. Mix Providers By Model Tier
+### 11. [Groq](https://groq.com/)
+
+Free, no credit card, and the fastest inference here. Get a key at [console.groq.com/keys](https://console.groq.com/keys).
+
+In the Admin UI, paste it into `GROQ_API_KEY`, then set `MODEL` to a Groq slug such as `groq/llama-3.3-70b-versatile`.
+
+Popular examples:
+
+- `groq/llama-3.3-70b-versatile`
+- `groq/moonshotai/kimi-k2-instruct`
+- `groq/qwen/qwen3-32b`
+- `groq/openai/gpt-oss-120b`
+
+Free limits are **per key**, so paste one key per account into `GROQ_API_KEYS` (a JSON list) to multiply throughput via round-robin pooling. Browse models at [console.groq.com/docs/models](https://console.groq.com/docs/models).
+
+### 12. [Cerebras](https://cerebras.ai/)
+
+Free, no credit card, one of the largest daily token allowances, and very fast. Get a key at [cloud.cerebras.ai](https://cloud.cerebras.ai/).
+
+In the Admin UI, paste it into `CEREBRAS_API_KEY`, then set `MODEL` to a Cerebras slug such as `cerebras/qwen-3-coder-480b`.
+
+Popular examples:
+
+- `cerebras/qwen-3-coder-480b`
+- `cerebras/llama-3.3-70b`
+- `cerebras/gpt-oss-120b`
+
+As with Groq, free limits are per key — pool several in `CEREBRAS_API_KEYS`. Browse models at [inference-docs.cerebras.ai](https://inference-docs.cerebras.ai/).
+
+### 13. Mix Providers By Model Tier
 
 Each model tier can use a different provider by setting `MODEL_OPUS`, `MODEL_SONNET`, and `MODEL_HAIKU` in the Admin UI. Leave a tier blank to inherit `MODEL`.
 
-For example, you can route Opus to `nvidia_nim/moonshotai/kimi-k2.5`, Sonnet to `open_router/deepseek/deepseek-r1-0528:free`, Haiku to `lmstudio/unsloth/GLM-4.7-Flash-GGUF`, and keep the fallback `MODEL` on `zai/glm-5.1`.
+For example, you can route Opus to `cerebras/qwen-3-coder-480b`, Sonnet to `groq/moonshotai/kimi-k2-instruct`, Haiku to `groq/llama-3.3-70b-versatile`, and keep the fallback `MODEL` on `nvidia_nim/z-ai/glm4.7`.
+
+## Cross-Provider Fallback
+
+Free tiers run out. Instead of stalling when one provider hits its quota, stack several in `MODEL_FALLBACKS` and the proxy **spills from an exhausted provider to the next one automatically — mid-request, before the client sees a single byte.** Combine NVIDIA NIM + Groq + Cerebras + OpenRouter free models and you rarely hit a wall.
+
+Set it in the Admin UI (or `~/.chakra/.env`) as a comma-separated string — or a JSON list — of `provider/model` refs:
+
+```env
+MODEL=cerebras/qwen-3-coder-480b
+MODEL_FALLBACKS=groq/llama-3.3-70b-versatile,nvidia_nim/z-ai/glm4.7,open_router/deepseek/deepseek-chat:free
+```
+
+For each request the proxy builds the chain `[tier-resolved MODEL, *MODEL_FALLBACKS]` (duplicates removed) and walks it in order:
+
+1. It tries the first provider, exhausting that provider's own **multi-key pool** (round-robin + 60s cooldown on `429`) and reactive backoff first.
+2. If the whole pool is cooling — or the provider returns a `5xx`/auth error — it **advances to the next provider** without streaming anything to the client.
+3. The first provider to produce real content **commits**: its output streams straight through. Once content has started, the proxy can't switch providers (bytes are already on the wire), exactly like key rotation.
+4. If every provider fails, the client still gets a clean, well-formed error from the last candidate.
+
+Fallbacks compose with per-tier routing — give each tier a fast primary and the same deep bench:
+
+```env
+MODEL_OPUS=cerebras/qwen-3-coder-480b
+MODEL_SONNET=groq/moonshotai/kimi-k2-instruct
+MODEL_HAIKU=groq/llama-3.3-70b-versatile
+MODEL_FALLBACKS=nvidia_nim/z-ai/glm4.7,open_router/deepseek/deepseek-chat:free,opencode/big-pickle
+```
+
+> Fallback triggers on provider **open failures** (`429` / `5xx` / auth / exhausted key pool). Malformed-request (`400`) errors are not retried across providers, and once a response has started streaming it cannot switch providers. Every model listed in `MODEL_FALLBACKS` is validated against its provider at startup, so a typo fails fast.
 
 ## Connect Claude Code
 
@@ -376,8 +458,9 @@ Important pieces:
 
 - FastAPI exposes Anthropic-compatible routes such as `/v1/messages`, `/v1/messages/count_tokens`, and `/v1/models`.
 - Model routing resolves the Claude model name to `MODEL_OPUS`, `MODEL_SONNET`, `MODEL_HAIKU`, or `MODEL`.
-- NIM, OpenCode Zen, Z.ai use OpenAI chat streaming translated into Anthropic SSE.
+- NIM, Groq, Cerebras, Fireworks, OpenCode Zen, and Z.ai use OpenAI chat streaming translated into Anthropic SSE.
 - Wafer, OpenRouter, DeepSeek, LM Studio, llama.cpp, and Ollama use Anthropic Messages style transports.
+- When `MODEL_FALLBACKS` is set, the proxy walks the provider chain and only commits a response once a provider returns real content (see [Cross-Provider Fallback](#cross-provider-fallback)).
 - The proxy normalizes thinking blocks, tool calls, token usage metadata, and provider errors into the shape Claude Code expects.
 - Request optimizations answer trivial Claude Code probes locally to save latency and quota.
 

@@ -404,8 +404,15 @@ class AnthropicMessagesTransport(BaseProvider):
         *,
         request_id: str | None = None,
         thinking_enabled: bool | None = None,
+        on_open_error: str = "render",
     ) -> AsyncIterator[str]:
-        """Stream response via a native Anthropic-compatible messages endpoint."""
+        """Stream response via a native Anthropic-compatible messages endpoint.
+
+        ``on_open_error="raise"`` re-raises the mapped
+        :class:`~providers.exceptions.ProviderError` when the upstream stream fails
+        to open (before any content), instead of rendering an Anthropic error SSE.
+        Used by the cross-provider fallback layer to advance to the next provider.
+        """
         tag = self._provider_name
         req_tag = f" request_id={request_id}" if request_id else ""
         body = self._build_request_body(request, thinking_enabled=thinking_enabled)
@@ -428,11 +435,13 @@ class AnthropicMessagesTransport(BaseProvider):
         state = self._new_stream_state(request, thinking_enabled=thinking_enabled)
         emitted_tracker = EmittedNativeSseTracker()
 
+        opened = False
         async with self._global_rate_limiter.concurrency_slot():
             try:
                 response = await self._open_stream_with_key_rotation(
                     body, req_tag=req_tag
                 )
+                opened = True
 
                 chunk_count = 0
                 chunk_bytes = 0
@@ -459,6 +468,12 @@ class AnthropicMessagesTransport(BaseProvider):
                 )
 
             except Exception as error:
+                if on_open_error == "raise" and not opened:
+                    # Cross-provider fallback: surface the open failure so the caller
+                    # can try the next provider rather than committing it to the client.
+                    raise map_error(
+                        error, rate_limiter=self._global_rate_limiter
+                    ) from error
                 if not isinstance(error, httpx.HTTPStatusError):
                     self._log_stream_transport_error(
                         tag, req_tag, error, request_id=request_id

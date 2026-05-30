@@ -169,6 +169,14 @@ class Settings(BaseSettings):
     fireworks_api_key: str = Field(default="", validation_alias="FIREWORKS_API_KEY")
     fireworks_api_keys: str = Field(default="", validation_alias="FIREWORKS_API_KEYS")
 
+    # ==================== Groq Config (free tier) ====================
+    groq_api_key: str = Field(default="", validation_alias="GROQ_API_KEY")
+    groq_api_keys: str = Field(default="", validation_alias="GROQ_API_KEYS")
+
+    # ==================== Cerebras Config (free tier) ====================
+    cerebras_api_key: str = Field(default="", validation_alias="CEREBRAS_API_KEY")
+    cerebras_api_keys: str = Field(default="", validation_alias="CEREBRAS_API_KEYS")
+
     # ==================== Messaging Platform Selection ====================
     # Valid: "telegram" | "discord" | "none"
     messaging_platform: str = Field(
@@ -214,6 +222,13 @@ class Settings(BaseSettings):
     model_sonnet: str | None = Field(default=None, validation_alias="MODEL_SONNET")
     model_haiku: str | None = Field(default=None, validation_alias="MODEL_HAIKU")
 
+    # Cross-provider fallback chain. When the tier-resolved provider's whole key
+    # pool is exhausted/cooling (or it returns 5xx/auth), the request transparently
+    # retries the next provider/model here, in order, before failing. Each entry is
+    # a ``provider/model`` ref; accepts a JSON list or a comma-separated string.
+    # Example: MODEL_FALLBACKS=groq/llama-3.3-70b-versatile,cerebras/qwen-3-coder-480b
+    model_fallbacks: str = Field(default="", validation_alias="MODEL_FALLBACKS")
+
     # ==================== Per-Provider Proxy ====================
     nvidia_nim_proxy: str = Field(default="", validation_alias="NVIDIA_NIM_PROXY")
     open_router_proxy: str = Field(default="", validation_alias="OPENROUTER_PROXY")
@@ -224,6 +239,8 @@ class Settings(BaseSettings):
     opencode_proxy: str = Field(default="", validation_alias="OPENCODE_PROXY")
     zai_proxy: str = Field(default="", validation_alias="ZAI_PROXY")
     fireworks_proxy: str = Field(default="", validation_alias="FIREWORKS_PROXY")
+    groq_proxy: str = Field(default="", validation_alias="GROQ_PROXY")
+    cerebras_proxy: str = Field(default="", validation_alias="CEREBRAS_PROXY")
 
     # ==================== Provider Rate Limiting ====================
     provider_rate_limit: int = Field(default=40, validation_alias="PROVIDER_RATE_LIMIT")
@@ -266,6 +283,33 @@ class Settings(BaseSettings):
     enable_title_generation_skip: bool = True
     enable_suggestion_mode_skip: bool = True
     enable_filepath_extraction_mock: bool = True
+
+    # ==================== Claude Code launch tuning ====================
+    # Applied to the Claude Code child process started by `chakra-claude` and the
+    # Discord/Telegram bot wrapper. Defaults are tuned to stretch free-provider
+    # quota and reduce latency. See `claude_code_launch_env`.
+    #
+    # Auto-compaction threshold (tokens). Claude Code compacts conversation
+    # history as it nears this size, so it bounds how many tokens are re-sent on
+    # every turn. Lowering it spends fewer tokens per request (cheaper + faster,
+    # and safer for free models whose real context is under 200k) at the cost of
+    # more frequent compaction. Emitted as CLAUDE_CODE_AUTO_COMPACT_WINDOW.
+    claude_auto_compact_window: int = Field(
+        default=190000, validation_alias="CLAUDE_CODE_AUTO_COMPACT_WINDOW"
+    )
+    # Disable Claude Code's non-essential background model calls (suggestions,
+    # flavour text, conversation summaries). These run on the haiku tier and burn
+    # free-provider quota and rate-limit headroom without affecting core coding.
+    # On by default; set DISABLE_NON_ESSENTIAL_MODEL_CALLS=0 to keep them.
+    claude_disable_nonessential_model_calls: bool = Field(
+        default=True, validation_alias="DISABLE_NON_ESSENTIAL_MODEL_CALLS"
+    )
+    # Disable Claude Code's non-essential outbound traffic (telemetry, error
+    # reporting, auto-update, bug command). Trims background requests and startup
+    # latency. On by default; set CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=0 to keep it.
+    claude_disable_nonessential_traffic: bool = Field(
+        default=True, validation_alias="CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC"
+    )
 
     # ==================== Local web server tools (web_search / web_fetch) ====================
     # Off by default: these tools perform outbound HTTP from the proxy (SSRF risk).
@@ -388,7 +432,6 @@ class Settings(BaseSettings):
             return None
         return v
 
-
     @property
     def claude_workspace(self) -> str:
         """Return the fixed Claude data workspace path."""
@@ -473,6 +516,23 @@ class Settings(BaseSettings):
             raise ValueError(f"Invalid provider: '{provider}'. Supported: {supported}")
         return v
 
+    @field_validator("model_fallbacks")
+    @classmethod
+    def validate_model_fallbacks(cls, v: str) -> str:
+        for ref in _parse_api_keys_json(v):
+            if "/" not in ref:
+                raise ValueError(
+                    f"MODEL_FALLBACKS entries must be 'provider/model', got: {ref!r}"
+                )
+            provider = ref.split("/", 1)[0]
+            if provider not in SUPPORTED_PROVIDER_IDS:
+                supported = ", ".join(f"'{p}'" for p in SUPPORTED_PROVIDER_IDS)
+                raise ValueError(
+                    f"Invalid provider in MODEL_FALLBACKS: '{provider}'. "
+                    f"Supported: {supported}"
+                )
+        return v
+
     @model_validator(mode="after")
     def check_nvidia_nim_api_key(self) -> Settings:
         if (
@@ -543,6 +603,16 @@ class Settings(BaseSettings):
             return self.model_sonnet
         return self.model
 
+    def fallback_model_refs(self) -> tuple[str, ...]:
+        """Return the ordered, de-duplicated ``MODEL_FALLBACKS`` provider/model refs."""
+        seen: set[str] = set()
+        refs: list[str] = []
+        for ref in _parse_api_keys_json(self.model_fallbacks):
+            if ref not in seen:
+                seen.add(ref)
+                refs.append(ref)
+        return tuple(refs)
+
     def configured_chat_model_refs(self) -> tuple[ConfiguredChatModelRef, ...]:
         """Return unique configured chat provider/model refs with source env keys."""
         candidates = (
@@ -556,6 +626,8 @@ class Settings(BaseSettings):
             if model_ref is None:
                 continue
             sources_by_ref.setdefault(model_ref, []).append(source)
+        for ref in self.fallback_model_refs():
+            sources_by_ref.setdefault(ref, []).append("MODEL_FALLBACKS")
 
         return tuple(
             ConfiguredChatModelRef(
@@ -577,6 +649,25 @@ class Settings(BaseSettings):
         if "sonnet" in name_lower and self.enable_sonnet_thinking is not None:
             return self.enable_sonnet_thinking
         return self.enable_model_thinking
+
+    def claude_code_launch_env(self) -> dict[str, str]:
+        """Return Claude Code child env vars tuned for free-tier usage.
+
+        Bounds per-turn token spend (``CLAUDE_CODE_AUTO_COMPACT_WINDOW``) and
+        drops the background haiku-tier model calls and telemetry/auto-update
+        traffic that otherwise eat free-provider quota and rate-limit headroom.
+
+        Callers merge these into the child environment with ``dict.setdefault`` so
+        any value the user set in their own shell always wins.
+        """
+        env = {
+            "CLAUDE_CODE_AUTO_COMPACT_WINDOW": str(self.claude_auto_compact_window),
+        }
+        if self.claude_disable_nonessential_model_calls:
+            env["DISABLE_NON_ESSENTIAL_MODEL_CALLS"] = "1"
+        if self.claude_disable_nonessential_traffic:
+            env["CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC"] = "1"
+        return env
 
     def web_fetch_allowed_scheme_set(self) -> frozenset[str]:
         """Return normalized schemes allowed for web_fetch."""

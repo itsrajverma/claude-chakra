@@ -83,6 +83,34 @@ class ModelRouter:
             thinking_enabled=thinking_enabled,
         )
 
+    def resolve_fallback_chain(self, claude_model_name: str) -> list[ResolvedModel]:
+        """Return the primary resolved model followed by configured fallbacks.
+
+        The chain is ``[primary, *MODEL_FALLBACKS]`` with duplicate
+        ``(provider_id, provider_model)`` targets removed (preserving order), so a
+        request can spill from an exhausted provider onto the next one. Returns a
+        single-element list when no fallbacks are configured.
+        """
+        primary = self.resolve(claude_model_name)
+        chain = [primary]
+        seen = {(primary.provider_id, primary.provider_model)}
+        for ref in self._settings.fallback_model_refs():
+            provider_id = Settings.parse_provider_type(ref)
+            provider_model = Settings.parse_model_name(ref)
+            if (provider_id, provider_model) in seen:
+                continue
+            seen.add((provider_id, provider_model))
+            chain.append(
+                ResolvedModel(
+                    original_model=claude_model_name,
+                    provider_id=provider_id,
+                    provider_model=provider_model,
+                    provider_model_ref=ref,
+                    thinking_enabled=self._settings.resolve_thinking(provider_model),
+                )
+            )
+        return chain
+
     def _direct_provider_model(
         self, model_name: str
     ) -> tuple[str | None, str | None, bool | None]:

@@ -18,6 +18,7 @@ from core.trace import api_messages_request_snapshot, trace_event, traced_async_
 from providers.base import BaseProvider
 from providers.exceptions import InvalidRequestError, ProviderError
 
+from .fallback import stream_with_fallback
 from .model_router import ModelRouter
 from .models.anthropic import MessagesRequest, TokenCountRequest
 from .models.responses import TokenCountResponse
@@ -187,13 +188,25 @@ class ClaudeProxyService:
                     routed.request.tools,
                 )
 
-                streamed = traced_async_stream(
-                    provider.stream_response(
+                chain = self._model_router.resolve_fallback_chain(request_data.model)
+                if len(chain) > 1:
+                    response_stream = stream_with_fallback(
+                        chain,
+                        routed.request,
+                        provider_getter=self._provider_getter,
+                        input_tokens=input_tokens,
+                        request_id=request_id,
+                    )
+                else:
+                    response_stream = provider.stream_response(
                         routed.request,
                         input_tokens=input_tokens,
                         request_id=request_id,
                         thinking_enabled=routed.resolved.thinking_enabled,
-                    ),
+                    )
+
+                streamed = traced_async_stream(
+                    response_stream,
                     stage="egress",
                     source="api",
                     complete_event="api.response.stream_completed",

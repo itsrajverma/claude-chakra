@@ -51,6 +51,8 @@ PROVIDER_SMOKE_DEFAULT_MODELS: dict[str, str] = {
     "wafer": "wafer/DeepSeek-V4-Pro",
     "opencode": "opencode/gpt-5.3-codex",
     "zai": "zai/glm-5.1",
+    "groq": "groq/llama-3.3-70b-versatile",
+    "cerebras": "cerebras/qwen-3-coder-480b",
 }
 
 NVIDIA_NIM_CLI_DEFAULT_MODELS: tuple[str, ...] = (

@@ -140,10 +140,10 @@ def test_init_skips_if_env_already_exists(tmp_path: Path) -> None:
 
 
 def test_init_prints_next_step_hint(tmp_path: Path) -> None:
-    """init() tells the user to run fcc-server after editing .env."""
+    """init() tells the user to run chakra-server after editing .env."""
     output, _ = _run_init(tmp_path)
 
-    assert "fcc-server" in output
+    assert "chakra-server" in output
 
 
 def test_cli_scripts_are_registered() -> None:
@@ -307,7 +307,27 @@ def test_claude_child_env_targets_current_proxy_config() -> None:
     assert env["ANTHROPIC_AUTH_TOKEN"] == "proxy-token"
     assert env["CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY"] == "1"
     assert env["CLAUDE_CODE_AUTO_COMPACT_WINDOW"] == "190000"
+    assert env["DISABLE_NON_ESSENTIAL_MODEL_CALLS"] == "1"
+    assert env["CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC"] == "1"
     assert "ANTHROPIC_API_KEY" not in env
+
+
+def test_claude_child_env_preserves_user_launch_overrides() -> None:
+    from cli.entrypoints import _claude_child_env
+
+    env = _claude_child_env(
+        _launcher_settings(),
+        {
+            "CLAUDE_CODE_AUTO_COMPACT_WINDOW": "120000",
+            "DISABLE_NON_ESSENTIAL_MODEL_CALLS": "0",
+        },
+    )
+
+    # A value the user already set in their shell wins over the tuned default.
+    assert env["CLAUDE_CODE_AUTO_COMPACT_WINDOW"] == "120000"
+    assert env["DISABLE_NON_ESSENTIAL_MODEL_CALLS"] == "0"
+    # Tuning vars the user did not set still get the tuned default applied.
+    assert env["CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC"] == "1"
 
 
 def test_claude_child_env_removes_blank_configured_auth_token() -> None:
@@ -427,4 +447,4 @@ def test_launch_claude_unreachable_proxy_exits_with_hint(
     run.assert_not_called()
     captured = capsys.readouterr()
     assert "http://127.0.0.1:9393" in captured.err
-    assert "fcc-server" in captured.err
+    assert "chakra-server" in captured.err

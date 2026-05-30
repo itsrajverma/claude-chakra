@@ -1,8 +1,10 @@
 """Re-exports default upstream base URLs from the config provider catalog."""
 
 from config.provider_catalog import (
+    CEREBRAS_DEFAULT_BASE,
     DEEPSEEK_ANTHROPIC_DEFAULT_BASE,
     DEEPSEEK_DEFAULT_BASE,
+    GROQ_DEFAULT_BASE,
     KIMI_DEFAULT_BASE,
     LLAMACPP_DEFAULT_BASE,
     LMSTUDIO_DEFAULT_BASE,
@@ -15,8 +17,10 @@ from config.provider_catalog import (
 )
 
 __all__ = (
+    "CEREBRAS_DEFAULT_BASE",
     "DEEPSEEK_ANTHROPIC_DEFAULT_BASE",
     "DEEPSEEK_DEFAULT_BASE",
+    "GROQ_DEFAULT_BASE",
     "KIMI_DEFAULT_BASE",
     "LLAMACPP_DEFAULT_BASE",
     "LMSTUDIO_DEFAULT_BASE",

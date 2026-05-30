@@ -347,6 +347,7 @@ class FakeProvider(BaseProvider):
         *,
         request_id: str | None = None,
         thinking_enabled: bool | None = None,
+        on_open_error: str = "render",
     ) -> AsyncIterator[str]:
         if False:
             yield ""

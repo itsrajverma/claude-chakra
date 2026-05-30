@@ -165,9 +165,7 @@ class OpenAIChatTransport(BaseProvider):
             api_key = self._key_pool.next_live_key()
             client = self._client_for_key(api_key)
             try:
-                return await client.chat.completions.create(
-                    **create_body, stream=True
-                )
+                return await client.chat.completions.create(**create_body, stream=True)
             except Exception as error:
                 if retryable_upstream_status(error) != 429:
                     raise
@@ -373,11 +371,24 @@ class OpenAIChatTransport(BaseProvider):
         *,
         request_id: str | None = None,
         thinking_enabled: bool | None = None,
+        on_open_error: str = "render",
     ) -> AsyncIterator[str]:
-        """Stream response in Anthropic SSE format."""
+        """Stream response in Anthropic SSE format.
+
+        ``on_open_error`` controls how a failure to *open* the upstream stream
+        (before any content is produced — where 429/5xx/auth/exhausted-pool errors
+        surface) is reported: ``"render"`` (default) emits an Anthropic error SSE so
+        a single-provider client sees the failure; ``"raise"`` re-raises the mapped
+        :class:`~providers.exceptions.ProviderError` so a cross-provider fallback
+        layer can try the next provider without the client seeing this attempt.
+        """
         with logger.contextualize(request_id=request_id):
             async for event in self._stream_response_impl(
-                request, input_tokens, request_id, thinking_enabled=thinking_enabled
+                request,
+                input_tokens,
+                request_id,
+                thinking_enabled=thinking_enabled,
+                on_open_error=on_open_error,
             ):
                 yield event
 
@@ -388,6 +399,7 @@ class OpenAIChatTransport(BaseProvider):
         request_id: str | None,
         *,
         thinking_enabled: bool | None,
+        on_open_error: str = "render",
     ) -> AsyncIterator[str]:
         """Shared streaming implementation."""
         tag = self._provider_name
@@ -423,9 +435,11 @@ class OpenAIChatTransport(BaseProvider):
         tool_argument_aliases: dict[str, dict[str, str]] = {}
         tool_argument_alias_buffers: dict[int, str] = {}
 
+        opened = False
         async with self._global_rate_limiter.concurrency_slot():
             try:
                 stream, body = await self._create_stream(body)
+                opened = True
                 tool_argument_aliases = self._tool_argument_aliases(body)
                 async for chunk in stream:
                     if getattr(chunk, "usage", None):
@@ -509,6 +523,10 @@ class OpenAIChatTransport(BaseProvider):
             except Exception as e:
                 self._log_stream_transport_error(tag, req_tag, e, request_id=request_id)
                 mapped_e = map_error(e, rate_limiter=self._global_rate_limiter)
+                if on_open_error == "raise" and not opened:
+                    # Cross-provider fallback: let the caller try the next provider
+                    # instead of committing this attempt's error to the client.
+                    raise mapped_e from e
                 base_message = user_visible_message_for_mapped_provider_error(
                     mapped_e,
                     provider_name=tag,

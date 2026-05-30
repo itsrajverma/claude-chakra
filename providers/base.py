@@ -144,8 +144,15 @@ class BaseProvider(ABC):
         *,
         request_id: str | None = None,
         thinking_enabled: bool | None = None,
+        on_open_error: str = "render",
     ) -> AsyncIterator[str]:
-        """Stream response in Anthropic SSE format."""
+        """Stream response in Anthropic SSE format.
+
+        ``on_open_error`` selects how a pre-content upstream open failure is
+        surfaced: ``"render"`` (default) emits an Anthropic error SSE; ``"raise"``
+        re-raises the mapped :class:`~providers.exceptions.ProviderError` so the
+        cross-provider fallback layer can try the next provider.
+        """
         # Typing: abstract async generators need a yield for AsyncIterator[str]
         # inference; this branch is never executed.
         if False:
