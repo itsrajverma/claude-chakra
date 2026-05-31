@@ -128,6 +128,24 @@ def _create_sambanova(config: ProviderConfig, _settings: Settings) -> BaseProvid
     return SambaNovaProvider(config)
 
 
+def _create_github(config: ProviderConfig, _settings: Settings) -> BaseProvider:
+    from providers.github import GitHubModelsProvider
+
+    return GitHubModelsProvider(config)
+
+
+def _create_huggingface(config: ProviderConfig, _settings: Settings) -> BaseProvider:
+    from providers.huggingface import HuggingFaceProvider
+
+    return HuggingFaceProvider(config)
+
+
+def _create_chutes(config: ProviderConfig, _settings: Settings) -> BaseProvider:
+    from providers.chutes import ChutesProvider
+
+    return ChutesProvider(config)
+
+
 PROVIDER_FACTORIES: dict[str, ProviderFactory] = {
     "nvidia_nim": _create_nvidia_nim,
     "open_router": _create_open_router,
@@ -145,6 +163,9 @@ PROVIDER_FACTORIES: dict[str, ProviderFactory] = {
     "gemini": _create_gemini,
     "mistral": _create_mistral,
     "sambanova": _create_sambanova,
+    "github": _create_github,
+    "huggingface": _create_huggingface,
+    "chutes": _create_chutes,
 }
 
 if set(PROVIDER_DESCRIPTORS) != set(SUPPORTED_PROVIDER_IDS) or set(

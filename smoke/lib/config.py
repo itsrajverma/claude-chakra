@@ -56,6 +56,9 @@ PROVIDER_SMOKE_DEFAULT_MODELS: dict[str, str] = {
     "gemini": "gemini/gemini-2.5-flash",
     "mistral": "mistral/mistral-small-latest",
     "sambanova": "sambanova/Meta-Llama-3.3-70B-Instruct",
+    "github": "github/openai/gpt-4o-mini",
+    "huggingface": "huggingface/meta-llama/Llama-3.3-70B-Instruct",
+    "chutes": "chutes/deepseek-ai/DeepSeek-V3-0324",
 }
 
 NVIDIA_NIM_CLI_DEFAULT_MODELS: tuple[str, ...] = (
