@@ -1,0 +1,154 @@
+:root {
+  --bg: #0f1117;
+  --panel: #171a22;
+  --panel-2: #1e222c;
+  --border: #2a2f3a;
+  --text: #e6e8ee;
+  --muted: #9aa1b1;
+  --accent: #7c5cff;
+  --user: #243049;
+  --assistant: #1b2330;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  font-weight: 600;
+}
+
+.controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.model-input {
+  width: 280px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  color: var(--text);
+  font-size: 12.5px;
+}
+
+.ghost {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.ghost:hover {
+  color: var(--text);
+}
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.msg {
+  max-width: 760px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.msg.user {
+  align-self: flex-end;
+  background: var(--user);
+}
+
+.msg.assistant {
+  align-self: flex-start;
+  background: var(--assistant);
+  border: 1px solid var(--border);
+}
+
+.msg .role {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.status {
+  min-height: 18px;
+  padding: 0 18px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.status.error {
+  color: #ff7b72;
+}
+
+.composer {
+  display: flex;
+  gap: 10px;
+  padding: 12px 14px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--panel);
+}
+
+.input {
+  flex: 1;
+  resize: none;
+  max-height: 200px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  color: var(--text);
+  font: inherit;
+}
+
+.send {
+  padding: 0 18px;
+  border: none;
+  border-radius: 10px;
+  background: var(--accent);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.send:disabled {
+  opacity: 0.5;
+  cursor: default;
+}

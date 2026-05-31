@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; connect-src http://127.0.0.1:* http://localhost:*; style-src 'self' 'unsafe-inline';"
+    />
+    <title>Claude Chakra</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">🌀 Claude Chakra</div>
+      <div class="controls">
+        <input
+          id="model"
+          class="model-input"
+          type="text"
+          spellcheck="false"
+          value="groq/llama-3.3-70b-versatile"
+          title="provider/model — e.g. gemini/gemini-2.5-flash"
+        />
+        <button id="settings" class="ghost" title="Open the Admin UI">⚙ Settings</button>
+      </div>
+    </header>
+
+    <main id="messages" class="messages" aria-live="polite"></main>
+
+    <div id="status" class="status"></div>
+
+    <footer class="composer">
+      <textarea
+        id="input"
+        class="input"
+        rows="1"
+        placeholder="Ask anything… (Enter to send, Shift+Enter for newline)"
+      ></textarea>
+      <button id="send" class="send">Send</button>
+    </footer>
+
+    <script src="chat.js"></script>
+  </body>
+</html>
