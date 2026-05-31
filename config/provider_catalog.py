@@ -33,6 +33,13 @@ CEREBRAS_DEFAULT_BASE = "https://api.cerebras.ai/v1"
 GEMINI_DEFAULT_BASE = "https://generativelanguage.googleapis.com/v1beta/openai"
 MISTRAL_DEFAULT_BASE = "https://api.mistral.ai/v1"
 SAMBANOVA_DEFAULT_BASE = "https://api.sambanova.ai/v1"
+# GitHub Models OpenAI-compatible inference surface (free with a GitHub PAT). Its
+# model catalog lives at a separate ``/catalog/models`` path, handled in the provider.
+GITHUB_MODELS_DEFAULT_BASE = "https://models.github.ai/inference"
+# Hugging Face Inference Providers router (OpenAI-compatible, free monthly credits).
+HUGGINGFACE_DEFAULT_BASE = "https://router.huggingface.co/v1"
+# Chutes.ai serverless inference (OpenAI-compatible, free prototyping tier).
+CHUTES_DEFAULT_BASE = "https://llm.chutes.ai/v1"
 
 
 @dataclass(frozen=True, slots=True)
@@ -211,6 +218,36 @@ PROVIDER_CATALOG: dict[str, ProviderDescriptor] = {
         credential_attr="sambanova_api_key",
         default_base_url=SAMBANOVA_DEFAULT_BASE,
         proxy_attr="sambanova_proxy",
+        capabilities=("chat", "streaming", "tools", "rate_limit"),
+    ),
+    "github": ProviderDescriptor(
+        provider_id="github",
+        transport_type="openai_chat",
+        credential_env="GITHUB_API_KEY",
+        credential_url="https://github.com/settings/personal-access-tokens",
+        credential_attr="github_api_key",
+        default_base_url=GITHUB_MODELS_DEFAULT_BASE,
+        proxy_attr="github_proxy",
+        capabilities=("chat", "streaming", "tools", "rate_limit"),
+    ),
+    "huggingface": ProviderDescriptor(
+        provider_id="huggingface",
+        transport_type="openai_chat",
+        credential_env="HUGGINGFACE_API_KEY",
+        credential_url="https://huggingface.co/settings/tokens",
+        credential_attr="huggingface_api_key",
+        default_base_url=HUGGINGFACE_DEFAULT_BASE,
+        proxy_attr="huggingface_proxy",
+        capabilities=("chat", "streaming", "tools", "rate_limit"),
+    ),
+    "chutes": ProviderDescriptor(
+        provider_id="chutes",
+        transport_type="openai_chat",
+        credential_env="CHUTES_API_KEY",
+        credential_url="https://chutes.ai/app/api",
+        credential_attr="chutes_api_key",
+        default_base_url=CHUTES_DEFAULT_BASE,
+        proxy_attr="chutes_proxy",
         capabilities=("chat", "streaming", "tools", "rate_limit"),
     ),
 }

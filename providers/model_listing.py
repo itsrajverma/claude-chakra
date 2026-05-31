@@ -46,6 +46,29 @@ def extract_openai_model_ids(payload: Any, *, provider_name: str) -> frozenset[s
     return frozenset(model_ids)
 
 
+def extract_github_catalog_model_ids(
+    payload: Any, *, provider_name: str
+) -> frozenset[str]:
+    """Extract model ids from GitHub Models' ``/catalog/models`` response.
+
+    Unlike the OpenAI ``/models`` shape, GitHub returns a bare top-level array of
+    model objects, each carrying a publisher-prefixed ``id`` (e.g. ``openai/gpt-4.1``).
+    """
+    if not _is_sequence(payload):
+        raise _malformed(provider_name, "expected a top-level models array")
+
+    model_ids: set[str] = set()
+    for item in payload:
+        model_id = _field(item, "id")
+        if not isinstance(model_id, str) or not model_id.strip():
+            raise _malformed(provider_name, "expected every model item to include id")
+        model_ids.add(model_id)
+
+    if not model_ids:
+        raise _malformed(provider_name, "response did not include any model ids")
+    return frozenset(model_ids)
+
+
 def extract_openrouter_tool_model_ids(
     payload: Any, *, provider_name: str
 ) -> frozenset[str]:

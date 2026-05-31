@@ -189,6 +189,20 @@ class Settings(BaseSettings):
     sambanova_api_key: str = Field(default="", validation_alias="SAMBANOVA_API_KEY")
     sambanova_api_keys: str = Field(default="", validation_alias="SAMBANOVA_API_KEYS")
 
+    # ==================== GitHub Models Config (free tier) ====================
+    github_api_key: str = Field(default="", validation_alias="GITHUB_API_KEY")
+    github_api_keys: str = Field(default="", validation_alias="GITHUB_API_KEYS")
+
+    # ==================== Hugging Face Config (free tier) ====================
+    huggingface_api_key: str = Field(default="", validation_alias="HUGGINGFACE_API_KEY")
+    huggingface_api_keys: str = Field(
+        default="", validation_alias="HUGGINGFACE_API_KEYS"
+    )
+
+    # ==================== Chutes Config (free tier) ====================
+    chutes_api_key: str = Field(default="", validation_alias="CHUTES_API_KEY")
+    chutes_api_keys: str = Field(default="", validation_alias="CHUTES_API_KEYS")
+
     # ==================== Messaging Platform Selection ====================
     # Valid: "telegram" | "discord" | "none"
     messaging_platform: str = Field(
@@ -256,6 +270,9 @@ class Settings(BaseSettings):
     gemini_proxy: str = Field(default="", validation_alias="GEMINI_PROXY")
     mistral_proxy: str = Field(default="", validation_alias="MISTRAL_PROXY")
     sambanova_proxy: str = Field(default="", validation_alias="SAMBANOVA_PROXY")
+    github_proxy: str = Field(default="", validation_alias="GITHUB_PROXY")
+    huggingface_proxy: str = Field(default="", validation_alias="HUGGINGFACE_PROXY")
+    chutes_proxy: str = Field(default="", validation_alias="CHUTES_PROXY")
 
     # ==================== Provider Rate Limiting ====================
     provider_rate_limit: int = Field(default=40, validation_alias="PROVIDER_RATE_LIMIT")

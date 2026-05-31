@@ -21,7 +21,7 @@ Claude Chakra routes Anthropic Messages API traffic from Claude Code to NVIDIA N
 ## What You Get
 
 - Drop-in proxy for Claude Code's Anthropic API calls.
-- Sixteen provider backends — including the **Groq**, **Cerebras**, **Gemini**, **Mistral**, and **SambaNova** free tiers: NVIDIA NIM, Groq, Cerebras, Google Gemini, Mistral, SambaNova, OpenRouter, OpenCode Zen, Kimi, DeepSeek, Wafer, Z.ai, Fireworks, LM Studio, llama.cpp, and Ollama. See the [Provider Matrix](#provider-matrix).
+- Nineteen provider backends — including the **Groq**, **Cerebras**, **Gemini**, **Mistral**, **SambaNova**, **GitHub Models**, **Hugging Face**, and **Chutes** free tiers: NVIDIA NIM, Groq, Cerebras, Google Gemini, Mistral, SambaNova, GitHub Models, Hugging Face, Chutes, OpenRouter, OpenCode Zen, Kimi, DeepSeek, Wafer, Z.ai, Fireworks, LM Studio, llama.cpp, and Ollama. See the [Provider Matrix](#provider-matrix).
 - **[Cross-provider fallback](#cross-provider-fallback)**: stack several free tiers in `MODEL_FALLBACKS` and the proxy spills from an exhausted provider to the next one automatically, mid-request — the biggest lever for stretching free quota.
 - **Multi-key pooling**: paste several keys per provider (e.g. one per account) and the proxy round-robins them, cooling a key for 60s and rotating on a `429`.
 - Per-model routing: send Opus, Sonnet, Haiku, and fallback traffic to different providers.
@@ -167,18 +167,21 @@ Pick one provider, enter its key or local URL in the Admin UI, and set `MODEL` t
 | 4 | [Google Gemini](https://aistudio.google.com/) | ✅ large daily RPD | OpenAI chat | [aistudio.google.com/apikey](https://aistudio.google.com/apikey) | `gemini/gemini-2.5-flash` |
 | 5 | [Mistral](https://mistral.ai/) | ✅ free "Experiment" tier | OpenAI chat | [console.mistral.ai](https://console.mistral.ai/api-keys) | `mistral/mistral-small-latest` |
 | 6 | [SambaNova](https://sambanova.ai/) | ✅ persistent free tier | OpenAI chat | [cloud.sambanova.ai](https://cloud.sambanova.ai/apis) | `sambanova/Meta-Llama-3.3-70B-Instruct` |
-| 7 | [OpenRouter](https://openrouter.ai/) | ✅ many `:free` models | Anthropic msgs | [openrouter.ai/keys](https://openrouter.ai/keys) | `open_router/deepseek/deepseek-chat:free` |
-| 8 | [OpenCode Zen](https://opencode.ai/) | ✅ some free models | OpenAI chat | [opencode.ai/auth](https://opencode.ai/auth) | `opencode/big-pickle` |
-| 9 | [Kimi](https://platform.moonshot.ai/) | — paid | OpenAI chat | [console](https://platform.moonshot.ai/console/api-keys) | `kimi/kimi-k2.5` |
-| 10 | [DeepSeek](https://platform.deepseek.com/) | — paid | Anthropic msgs | [api_keys](https://platform.deepseek.com/api_keys) | `deepseek/deepseek-chat` |
-| 11 | [Wafer](https://wafer.ai/) | — paid pass | Anthropic msgs | [wafer.ai](https://wafer.ai) | `wafer/DeepSeek-V4-Pro` |
-| 12 | [Z.ai](https://z.ai/) | — coding plan | OpenAI chat | [apikey-list](https://z.ai/manage-apikey/apikey-list) | `zai/glm-5.1` |
-| 13 | [Fireworks](https://fireworks.ai/) | — trial credit | OpenAI chat | [api-keys](https://fireworks.ai/account/api-keys) | `fireworks/accounts/fireworks/models/glm-5p1` |
-| 14 | [LM Studio](https://lmstudio.ai/) | 🖥️ local | Anthropic msgs | — (local) | `lmstudio/<model>` |
-| 15 | [llama.cpp](https://github.com/ggml-org/llama.cpp) | 🖥️ local | Anthropic msgs | — (local) | `llamacpp/<model>` |
-| 16 | [Ollama](https://ollama.com/) | 🖥️ local | Anthropic msgs | — (local) | `ollama/llama3.1` |
+| 7 | [GitHub Models](https://github.com/marketplace?type=models) | ✅ free with a GitHub PAT | OpenAI chat | [settings/personal-access-tokens](https://github.com/settings/personal-access-tokens) | `github/openai/gpt-4o-mini` |
+| 8 | [Hugging Face](https://huggingface.co/) | ✅ free monthly credits | OpenAI chat | [settings/tokens](https://huggingface.co/settings/tokens) | `huggingface/meta-llama/Llama-3.3-70B-Instruct` |
+| 9 | [Chutes](https://chutes.ai/) | ✅ free prototyping tier | OpenAI chat | [chutes.ai/app/api](https://chutes.ai/app/api) | `chutes/deepseek-ai/DeepSeek-V3-0324` |
+| 10 | [OpenRouter](https://openrouter.ai/) | ✅ many `:free` models | Anthropic msgs | [openrouter.ai/keys](https://openrouter.ai/keys) | `open_router/deepseek/deepseek-chat:free` |
+| 11 | [OpenCode Zen](https://opencode.ai/) | ✅ some free models | OpenAI chat | [opencode.ai/auth](https://opencode.ai/auth) | `opencode/big-pickle` |
+| 12 | [Kimi](https://platform.moonshot.ai/) | — paid | OpenAI chat | [console](https://platform.moonshot.ai/console/api-keys) | `kimi/kimi-k2.5` |
+| 13 | [DeepSeek](https://platform.deepseek.com/) | — paid | Anthropic msgs | [api_keys](https://platform.deepseek.com/api_keys) | `deepseek/deepseek-chat` |
+| 14 | [Wafer](https://wafer.ai/) | — paid pass | Anthropic msgs | [wafer.ai](https://wafer.ai) | `wafer/DeepSeek-V4-Pro` |
+| 15 | [Z.ai](https://z.ai/) | — coding plan | OpenAI chat | [apikey-list](https://z.ai/manage-apikey/apikey-list) | `zai/glm-5.1` |
+| 16 | [Fireworks](https://fireworks.ai/) | — trial credit | OpenAI chat | [api-keys](https://fireworks.ai/account/api-keys) | `fireworks/accounts/fireworks/models/glm-5p1` |
+| 17 | [LM Studio](https://lmstudio.ai/) | 🖥️ local | Anthropic msgs | — (local) | `lmstudio/<model>` |
+| 18 | [llama.cpp](https://github.com/ggml-org/llama.cpp) | 🖥️ local | Anthropic msgs | — (local) | `llamacpp/<model>` |
+| 19 | [Ollama](https://ollama.com/) | 🖥️ local | Anthropic msgs | — (local) | `ollama/llama3.1` |
 
-✅ = usable with a free key (no credit card for Groq / Cerebras / Gemini) · 🖥️ = runs locally, no key · — = paid only. Every authenticated provider supports a multi-key **pool** (`<PROVIDER>_API_KEYS`) and can be chained via [`MODEL_FALLBACKS`](#cross-provider-fallback).
+✅ = usable with a free key (no credit card for Groq / Cerebras / Gemini / GitHub Models / Hugging Face / Chutes) · 🖥️ = runs locally, no key · — = paid only. Every authenticated provider supports a multi-key **pool** (`<PROVIDER>_API_KEYS`) and can be chained via [`MODEL_FALLBACKS`](#cross-provider-fallback).
 
 <a id="nvidia-nim-provider"></a>
 
@@ -484,7 +487,7 @@ Important pieces:
 
 - FastAPI exposes Anthropic-compatible routes such as `/v1/messages`, `/v1/messages/count_tokens`, and `/v1/models`.
 - Model routing resolves the Claude model name to `MODEL_OPUS`, `MODEL_SONNET`, `MODEL_HAIKU`, or `MODEL`.
-- NIM, Groq, Cerebras, Gemini, Mistral, SambaNova, Fireworks, OpenCode Zen, and Z.ai use OpenAI chat streaming translated into Anthropic SSE.
+- NIM, Groq, Cerebras, Gemini, Mistral, SambaNova, GitHub Models, Hugging Face, Chutes, Fireworks, OpenCode Zen, and Z.ai use OpenAI chat streaming translated into Anthropic SSE.
 - Wafer, OpenRouter, DeepSeek, LM Studio, llama.cpp, and Ollama use Anthropic Messages style transports.
 - When `MODEL_FALLBACKS` is set, the proxy walks the provider chain and only commits a response once a provider returns real content (see [Cross-Provider Fallback](#cross-provider-fallback)).
 - The proxy normalizes thinking blocks, tool calls, token usage metadata, and provider errors into the shape Claude Code expects.
