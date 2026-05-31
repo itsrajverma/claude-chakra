@@ -23,6 +23,7 @@ Claude Chakra routes Anthropic Messages API traffic from Claude Code to NVIDIA N
 - Drop-in proxy for Claude Code's Anthropic API calls.
 - Nineteen provider backends — including the **Groq**, **Cerebras**, **Gemini**, **Mistral**, **SambaNova**, **GitHub Models**, **Hugging Face**, and **Chutes** free tiers: NVIDIA NIM, Groq, Cerebras, Google Gemini, Mistral, SambaNova, GitHub Models, Hugging Face, Chutes, OpenRouter, OpenCode Zen, Kimi, DeepSeek, Wafer, Z.ai, Fireworks, LM Studio, llama.cpp, and Ollama. See the [Provider Matrix](#provider-matrix).
 - **[Cross-provider fallback](#cross-provider-fallback)**: stack several free tiers in `MODEL_FALLBACKS` and the proxy spills from an exhausted provider to the next one automatically, mid-request — the biggest lever for stretching free quota.
+- **`chakra-providers` command**: prints which free providers are configured and a ready-to-paste `MODEL` + `MODEL_FALLBACKS` chain built from them. See the **[Free Usage Guide](docs/FREE_USAGE_GUIDE.md)** for how to run entirely free.
 - **Multi-key pooling**: paste several keys per provider (e.g. one per account) and the proxy round-robins them, cooling a key for 60s and rotating on a `429`.
 - Per-model routing: send Opus, Sonnet, Haiku, and fallback traffic to different providers.
 - Native Claude Code `/model` picker support through the proxy's `/v1/models` endpoint (Claude Code must opt in to Gateway model discovery; see [Model Picker](#model-picker)).

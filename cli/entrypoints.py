@@ -157,6 +157,15 @@ def init() -> None:
     print("Edit it to set your API keys and model preferences, then run: chakra-server")
 
 
+def providers() -> None:
+    """Print free-tier provider readiness + a fallback chain (`chakra-providers`)."""
+    from cli.provider_report import build_provider_report, render_provider_report
+
+    _migrate_legacy_env_if_missing()
+    settings = get_settings()
+    print(render_provider_report(build_provider_report(settings)))
+
+
 def _migrate_legacy_env_if_missing() -> Path | None:
     """Copy a legacy user env into ``~/.chakra/.env`` when the new path is empty."""
 

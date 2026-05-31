@@ -257,3 +257,29 @@ SUPPORTED_PROVIDER_IDS: tuple[str, ...] = tuple(PROVIDER_CATALOG.keys())
 
 if len(set(SUPPORTED_PROVIDER_IDS)) != len(SUPPORTED_PROVIDER_IDS):
     raise AssertionError("Duplicate provider ids in PROVIDER_CATALOG key order")
+
+# Cloud providers usable on a genuine no-/low-cost free tier (no credit card, free
+# credits, or persistent free quota). Excludes paid-only backends and the local
+# runtimes (LM Studio / llama.cpp / Ollama), which are free but not API-key cloud
+# tiers. Drives the ``chakra-providers`` free-tier setup report and fallback hints.
+FREE_TIER_PROVIDER_IDS: frozenset[str] = frozenset(
+    {
+        "nvidia_nim",
+        "groq",
+        "cerebras",
+        "gemini",
+        "mistral",
+        "sambanova",
+        "github",
+        "huggingface",
+        "chutes",
+        "open_router",
+        "opencode",
+    }
+)
+
+if not set(SUPPORTED_PROVIDER_IDS) >= FREE_TIER_PROVIDER_IDS:
+    raise AssertionError(
+        "FREE_TIER_PROVIDER_IDS references unknown providers: "
+        f"{FREE_TIER_PROVIDER_IDS - set(SUPPORTED_PROVIDER_IDS)!r}"
+    )

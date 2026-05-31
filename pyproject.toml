@@ -28,6 +28,7 @@ dependencies = [
 chakra-server = "cli.entrypoints:serve"
 chakra-init = "cli.entrypoints:init"
 chakra-claude = "cli.entrypoints:launch_claude"
+chakra-providers = "cli.entrypoints:providers"
 claude-chakra = "cli.entrypoints:serve"
 
 [project.optional-dependencies]
